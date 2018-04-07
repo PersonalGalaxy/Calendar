@@ -3,9 +3,9 @@ declare(strict_types = 1);
 
 namespace PersonalGalaxy\Calendar\Exception;
 
-use PersonalGalaxy\Calendar\Entity\Agenda\Identity;
+use PersonalGalaxy\Calendar\Entity\Event\Identity;
 
-final class AgendaNotFound extends LogicException
+final class EventNotFound extends LogicException
 {
     private $identity;
 
