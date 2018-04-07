@@ -7,11 +7,13 @@ use PersonalGalaxy\Calendar\{
     Entity\Event\Identity,
     Entity\Event\Name,
     Entity\Event\Slot,
+    Entity\Event\Note,
     Entity\Agenda\Identity as Agenda,
     Event\EventWasAdded,
     Event\EventWasRenamed,
     Event\EventWasMoved,
     Event\EventWasCanceled,
+    Event\Event\NoteWasAdded,
 };
 use Innmind\EventBus\{
     ContainsRecordedEventsInterface,
@@ -26,6 +28,7 @@ final class Event implements ContainsRecordedEventsInterface
     private $agenda;
     private $name;
     private $slot;
+    private $note;
 
     private function __construct(
         Identity $identity,
@@ -37,6 +40,7 @@ final class Event implements ContainsRecordedEventsInterface
         $this->agenda = $agenda;
         $this->name = $name;
         $this->slot = $slot;
+        $this->note = new Note('');
     }
 
     public static function add(
@@ -71,6 +75,11 @@ final class Event implements ContainsRecordedEventsInterface
         return $this->slot;
     }
 
+    public function note(): Note
+    {
+        return $this->note;
+    }
+
     public function rename(Name $name): self
     {
         if ($name->equals($this->name)) {
@@ -87,6 +96,14 @@ final class Event implements ContainsRecordedEventsInterface
     {
         $this->slot = $slot;
         $this->record(new EventWasMoved($this->identity, $slot));
+
+        return $this;
+    }
+
+    public function addNote(Note $note): self
+    {
+        $this->note = $note;
+        $this->record(new NoteWasAdded($this->identity, $note));
 
         return $this;
     }

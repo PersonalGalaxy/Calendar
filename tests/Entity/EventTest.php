@@ -8,11 +8,13 @@ use PersonalGalaxy\Calendar\{
     Entity\Event\Identity,
     Entity\Event\Name,
     Entity\Event\Slot,
+    Entity\Event\Note,
     Entity\Agenda\Identity as Agenda,
     Event\EventWasAdded,
     Event\EventWasRenamed,
     Event\EventWasMoved,
     Event\EventWasCanceled,
+    Event\Event\NoteWasAdded,
 };
 use Innmind\TimeContinuum\PointInTimeInterface;
 use Innmind\EventBus\ContainsRecordedEventsInterface;
@@ -38,6 +40,7 @@ class EventTest extends TestCase
         $this->assertSame($agenda, $event->agenda());
         $this->assertSame($name, $event->name());
         $this->assertSame($slot, $event->slot());
+        $this->assertSame('', (string) $event->note());
         $this->assertCount(1, $event->recordedEvents());
         $recordedEvent = $event->recordedEvents()->first();
         $this->assertInstanceOf(EventWasAdded::class, $recordedEvent);
@@ -131,5 +134,26 @@ class EventTest extends TestCase
         $recordedEvent = $event->recordedEvents()->last();
         $this->assertInstanceOf(EventWasCanceled::class, $recordedEvent);
         $this->assertSame($identity, $recordedEvent->identity());
+    }
+
+    public function testAddNote()
+    {
+        $event = Event::add(
+            $identity = $this->createMock(Identity::class),
+            $this->createMock(Agenda::class),
+            new Name('foo'),
+            new Slot(
+                $this->createMock(PointInTimeInterface::class),
+                $this->createMock(PointInTimeInterface::class)
+            )
+        );
+
+        $this->assertSame($event, $event->addNote($note = new Note('foo')));
+        $this->assertSame($note, $event->note());
+        $this->assertCount(2, $event->recordedEvents());
+        $recordedEvent = $event->recordedEvents()->last();
+        $this->assertInstanceOf(NoteWasAdded::class, $recordedEvent);
+        $this->assertSame($identity, $recordedEvent->identity());
+        $this->assertSame($note, $recordedEvent->note());
     }
 }
