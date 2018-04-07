@@ -3,20 +3,22 @@ declare(strict_types = 1);
 
 namespace PersonalGalaxy\Calendar\Command;
 
-use PersonalGalaxy\Calendar\Entity\Event\Identity;
-use Innmind\TimeContinuum\PointInTimeInterface;
+use PersonalGalaxy\Calendar\Entity\Event\{
+    Identity,
+    Slot,
+};
 
 final class MoveEvent
 {
     private $identity;
-    private $pointInTime;
+    private $slot;
 
     public function __construct(
         Identity $identity,
-        PointInTimeInterface $pointInTime
+        Slot $slot
     ) {
         $this->identity = $identity;
-        $this->pointInTime = $pointInTime;
+        $this->slot = $slot;
     }
 
     public function identity(): Identity
@@ -24,8 +26,8 @@ final class MoveEvent
         return $this->identity;
     }
 
-    public function pointInTime(): PointInTimeInterface
+    public function slot(): Slot
     {
-        return $this->pointInTime;
+        return $this->slot;
     }
 }

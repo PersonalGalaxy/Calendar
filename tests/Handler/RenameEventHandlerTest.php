@@ -10,6 +10,7 @@ use PersonalGalaxy\Calendar\{
     Entity\Event,
     Entity\Event\Identity,
     Entity\Event\Name,
+    Entity\Event\Slot,
     Entity\Agenda\Identity as Agenda,
 };
 use Innmind\TimeContinuum\PointInTimeInterface;
@@ -34,7 +35,10 @@ class RenameEventHandlerTest extends TestCase
                 $command->identity(),
                 $this->createMock(Agenda::class),
                 new Name('foo'),
-                $this->createMock(PointInTimeInterface::class)
+                new Slot(
+                    $this->createMock(PointInTimeInterface::class),
+                    $this->createMock(PointInTimeInterface::class)
+                )
             ));
 
         $this->assertNull($handle($command));

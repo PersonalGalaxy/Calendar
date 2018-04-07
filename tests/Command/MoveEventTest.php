@@ -6,6 +6,7 @@ namespace Tests\PersonalGalaxy\Calendar\Command;
 use PersonalGalaxy\Calendar\{
     Command\MoveEvent,
     Entity\Event\Identity,
+    Entity\Event\Slot,
 };
 use Innmind\TimeContinuum\PointInTimeInterface;
 use PHPUnit\Framework\TestCase;
@@ -16,10 +17,13 @@ class MoveEventTest extends TestCase
     {
         $event = new MoveEvent(
             $identity = $this->createMock(Identity::class),
-            $pointInTime = $this->createMock(PointInTimeInterface::class)
+            $slot = new Slot(
+                $this->createMock(PointInTimeInterface::class),
+                $this->createMock(PointInTimeInterface::class)
+            )
         );
 
         $this->assertSame($identity, $event->identity());
-        $this->assertSame($pointInTime, $event->pointInTime());
+        $this->assertSame($slot, $event->slot());
     }
 }

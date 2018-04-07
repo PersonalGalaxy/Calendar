@@ -3,20 +3,20 @@ declare(strict_types = 1);
 
 namespace PersonalGalaxy\Calendar\Exception;
 
-use Innmind\TimeContinuum\PointInTimeInterface;
+use PersonalGalaxy\Calendar\Entity\Event\Slot;
 
 final class EventCannotBeDeclaredInThePast extends LogicException
 {
-    private $pointInTime;
+    private $slot;
 
-    public function __construct(PointInTimeInterface $pointInTime)
+    public function __construct(Slot $slot)
     {
-        $this->pointInTime = $pointInTime;
-        parent::__construct((string) $pointInTime);
+        $this->slot = $slot;
+        parent::__construct();
     }
 
-    public function pointInTime(): PointInTimeInterface
+    public function slot(): Slot
     {
-        return $this->pointInTime;
+        return $this->slot;
     }
 }

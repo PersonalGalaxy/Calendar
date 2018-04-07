@@ -12,6 +12,7 @@ use PersonalGalaxy\Calendar\{
     Entity\Event\Identity,
     Entity\Event\User,
     Entity\Event\Name,
+    Entity\Event\Slot,
     Entity\Agenda\Identity as Agenda,
     Event\EventWasAdded,
     Exception\AgendaNotFound,
@@ -36,7 +37,10 @@ class AddEventHandlerTest extends TestCase
             $this->createMock(Identity::class),
             $this->createMock(Agenda::class),
             new Name('foo'),
-            $pointInTime = $this->createMock(PointInTimeInterface::class)
+            new Slot(
+                $start = $this->createMock(PointInTimeInterface::class),
+                $this->createMock(PointInTimeInterface::class)
+            )
         );
         $clock
             ->expects($this->once())
@@ -45,7 +49,7 @@ class AddEventHandlerTest extends TestCase
         $now
             ->expects($this->once())
             ->method('aheadOf')
-            ->with($pointInTime)
+            ->with($start)
             ->willReturn(false);
         $agendas
             ->expects($this->once())
@@ -59,7 +63,7 @@ class AddEventHandlerTest extends TestCase
                 return $event->identity() === $command->identity() &&
                     $event->agenda() === $command->agenda() &&
                     $event->name() === $command->name() &&
-                    $event->pointInTime() === $command->pointInTime() &&
+                    $event->slot() === $command->slot() &&
                     $event->recordedEvents()->first() instanceof EventWasAdded;
             }));
 
@@ -77,7 +81,10 @@ class AddEventHandlerTest extends TestCase
             $this->createMock(Identity::class),
             $this->createMock(Agenda::class),
             new Name('foo'),
-            $pointInTime = $this->createMock(PointInTimeInterface::class)
+            new Slot(
+                $start = $this->createMock(PointInTimeInterface::class),
+                $this->createMock(PointInTimeInterface::class)
+            )
         );
         $clock
             ->expects($this->once())
@@ -86,7 +93,7 @@ class AddEventHandlerTest extends TestCase
         $now
             ->expects($this->once())
             ->method('aheadOf')
-            ->with($pointInTime)
+            ->with($start)
             ->willReturn(false);
         $agendas
             ->expects($this->once())
@@ -117,7 +124,10 @@ class AddEventHandlerTest extends TestCase
             $this->createMock(Identity::class),
             $this->createMock(Agenda::class),
             new Name('foo'),
-            $pointInTime = $this->createMock(PointInTimeInterface::class)
+            $slot = new Slot(
+                $start = $this->createMock(PointInTimeInterface::class),
+                $this->createMock(PointInTimeInterface::class)
+            )
         );
         $clock
             ->expects($this->once())
@@ -126,7 +136,7 @@ class AddEventHandlerTest extends TestCase
         $now
             ->expects($this->once())
             ->method('aheadOf')
-            ->with($pointInTime)
+            ->with($start)
             ->willReturn(true);
         $agendas
             ->expects($this->never())
@@ -140,7 +150,7 @@ class AddEventHandlerTest extends TestCase
 
             $this->fail('it should throw');
         } catch (EventCannotBeDeclaredInThePast $e) {
-            $this->assertSame($pointInTime, $e->pointInTime());
+            $this->assertSame($slot, $e->slot());
         }
     }
 }

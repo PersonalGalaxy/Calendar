@@ -10,6 +10,7 @@ use PersonalGalaxy\Calendar\{
     Entity\Event,
     Entity\Event\Identity,
     Entity\Event\Name,
+    Entity\Event\Slot,
     Entity\Agenda\Identity as Agenda,
     Event\EventWasCanceled,
 };
@@ -32,7 +33,10 @@ class CancelEventHandlerTest extends TestCase
                 $command->identity(),
                 $this->createMock(Agenda::class),
                 new Name('foo'),
-                $this->createMock(PointInTimeInterface::class)
+                new Slot(
+                    $this->createMock(PointInTimeInterface::class),
+                    $this->createMock(PointInTimeInterface::class)
+                )
             ));
         $repository
             ->expects($this->once())

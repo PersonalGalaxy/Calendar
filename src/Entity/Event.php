@@ -6,13 +6,13 @@ namespace PersonalGalaxy\Calendar\Entity;
 use PersonalGalaxy\Calendar\{
     Entity\Event\Identity,
     Entity\Event\Name,
+    Entity\Event\Slot,
     Entity\Agenda\Identity as Agenda,
     Event\EventWasAdded,
     Event\EventWasRenamed,
     Event\EventWasMoved,
     Event\EventWasCanceled,
 };
-use Innmind\TimeContinuum\PointInTimeInterface;
 use Innmind\EventBus\{
     ContainsRecordedEventsInterface,
     EventRecorder,
@@ -25,28 +25,28 @@ final class Event implements ContainsRecordedEventsInterface
     private $identity;
     private $agenda;
     private $name;
-    private $pointInTime;
+    private $slot;
 
     private function __construct(
         Identity $identity,
         Agenda $agenda,
         Name $name,
-        PointInTimeInterface $pointInTime
+        Slot $slot
     ) {
         $this->identity = $identity;
         $this->agenda = $agenda;
         $this->name = $name;
-        $this->pointInTime = $pointInTime;
+        $this->slot = $slot;
     }
 
     public static function add(
         Identity $identity,
         Agenda $agenda,
         Name $name,
-        PointInTimeInterface $pointInTime
+        Slot $slot
     ): self {
-        $self = new self($identity, $agenda, $name, $pointInTime);
-        $self->record(new EventWasAdded($identity, $agenda, $name, $pointInTime));
+        $self = new self($identity, $agenda, $name, $slot);
+        $self->record(new EventWasAdded($identity, $agenda, $name, $slot));
 
         return $self;
     }
@@ -66,9 +66,9 @@ final class Event implements ContainsRecordedEventsInterface
         return $this->name;
     }
 
-    public function pointInTime(): PointInTimeInterface
+    public function slot(): Slot
     {
-        return $this->pointInTime;
+        return $this->slot;
     }
 
     public function rename(Name $name): self
@@ -83,10 +83,10 @@ final class Event implements ContainsRecordedEventsInterface
         return $this;
     }
 
-    public function move(PointInTimeInterface $pointInTime): self
+    public function move(Slot $slot): self
     {
-        $this->pointInTime = $pointInTime;
-        $this->record(new EventWasMoved($this->identity, $pointInTime));
+        $this->slot = $slot;
+        $this->record(new EventWasMoved($this->identity, $slot));
 
         return $this;
     }

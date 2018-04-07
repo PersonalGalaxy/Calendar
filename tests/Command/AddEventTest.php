@@ -7,6 +7,7 @@ use PersonalGalaxy\Calendar\{
     Command\AddEvent,
     Entity\Event\Identity,
     Entity\Event\Name,
+    Entity\Event\Slot,
     Entity\Agenda\Identity as Agenda,
 };
 use Innmind\TimeContinuum\PointInTimeInterface;
@@ -20,12 +21,15 @@ class AddEventTest extends TestCase
             $identity = $this->createMock(Identity::class),
             $agenda = $this->createMock(Agenda::class),
             $name = new Name('foo'),
-            $pointInTime = $this->createMock(PointInTimeInterface::class)
+            $slot = new Slot(
+                $this->createMock(PointInTimeInterface::class),
+                $this->createMock(PointInTimeInterface::class)
+            )
         );
 
         $this->assertSame($identity, $event->identity());
         $this->assertSame($agenda, $event->agenda());
         $this->assertSame($name, $event->name());
-        $this->assertSame($pointInTime, $event->pointInTime());
+        $this->assertSame($slot, $event->slot());
     }
 }

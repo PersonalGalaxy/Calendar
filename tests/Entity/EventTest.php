@@ -7,6 +7,7 @@ use PersonalGalaxy\Calendar\{
     Entity\Event,
     Entity\Event\Identity,
     Entity\Event\Name,
+    Entity\Event\Slot,
     Entity\Agenda\Identity as Agenda,
     Event\EventWasAdded,
     Event\EventWasRenamed,
@@ -25,7 +26,10 @@ class EventTest extends TestCase
             $identity = $this->createMock(Identity::class),
             $agenda = $this->createMock(Agenda::class),
             $name = new Name('foo'),
-            $pointInTime = $this->createMock(PointInTimeInterface::class)
+            $slot = new Slot(
+                $this->createMock(PointInTimeInterface::class),
+                $this->createMock(PointInTimeInterface::class)
+            )
         );
 
         $this->assertInstanceOf(Event::class, $event);
@@ -33,14 +37,14 @@ class EventTest extends TestCase
         $this->assertSame($identity, $event->identity());
         $this->assertSame($agenda, $event->agenda());
         $this->assertSame($name, $event->name());
-        $this->assertSame($pointInTime, $event->pointInTime());
+        $this->assertSame($slot, $event->slot());
         $this->assertCount(1, $event->recordedEvents());
         $recordedEvent = $event->recordedEvents()->first();
         $this->assertInstanceOf(EventWasAdded::class, $recordedEvent);
         $this->assertSame($identity, $recordedEvent->identity());
         $this->assertSame($agenda, $recordedEvent->agenda());
         $this->assertSame($name, $recordedEvent->name());
-        $this->assertSame($pointInTime, $recordedEvent->pointInTime());
+        $this->assertSame($slot, $recordedEvent->slot());
     }
 
     public function testRename()
@@ -49,7 +53,10 @@ class EventTest extends TestCase
             $identity = $this->createMock(Identity::class),
             $this->createMock(Agenda::class),
             new Name('foo'),
-            $this->createMock(PointInTimeInterface::class)
+            new Slot(
+                $this->createMock(PointInTimeInterface::class),
+                $this->createMock(PointInTimeInterface::class)
+            )
         );
 
         $this->assertSame($event, $event->rename($name = new Name('bar')));
@@ -67,7 +74,10 @@ class EventTest extends TestCase
             $identity = $this->createMock(Identity::class),
             $this->createMock(Agenda::class),
             $name = new Name('foo'),
-            $this->createMock(PointInTimeInterface::class)
+            new Slot(
+                $this->createMock(PointInTimeInterface::class),
+                $this->createMock(PointInTimeInterface::class)
+            )
         );
 
         $this->assertSame($event, $event->rename(new Name('foo')));
@@ -81,21 +91,27 @@ class EventTest extends TestCase
             $identity = $this->createMock(Identity::class),
             $this->createMock(Agenda::class),
             new Name('foo'),
-            $this->createMock(PointInTimeInterface::class)
+            new Slot(
+                $this->createMock(PointInTimeInterface::class),
+                $this->createMock(PointInTimeInterface::class)
+            )
         );
 
         $this->assertSame(
             $event,
             $event->move(
-                $pointInTime = $this->createMock(PointInTimeInterface::class)
+                $slot = new Slot(
+                    $this->createMock(PointInTimeInterface::class),
+                    $this->createMock(PointInTimeInterface::class)
+                )
             )
         );
-        $this->assertSame($pointInTime, $event->pointInTime());
+        $this->assertSame($slot, $event->slot());
         $this->assertCount(2, $event->recordedEvents());
         $recordedEvent = $event->recordedEvents()->last();
         $this->assertInstanceOf(EventWasMoved::class, $recordedEvent);
         $this->assertSame($identity, $recordedEvent->identity());
-        $this->assertSame($pointInTime, $recordedEvent->pointInTime());
+        $this->assertSame($slot, $recordedEvent->slot());
     }
 
     public function testCancel()
@@ -104,7 +120,10 @@ class EventTest extends TestCase
             $identity = $this->createMock(Identity::class),
             $this->createMock(Agenda::class),
             new Name('foo'),
-            $this->createMock(PointInTimeInterface::class)
+            new Slot(
+                $this->createMock(PointInTimeInterface::class),
+                $this->createMock(PointInTimeInterface::class)
+            )
         );
 
         $this->assertNull($event->cancel());

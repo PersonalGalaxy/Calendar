@@ -25,13 +25,13 @@ final class MoveEventHandler
 
     public function __invoke(MoveEvent $wished): void
     {
-        if ($this->clock->now()->aheadOf($wished->pointInTime())) {
-            throw new EventCannotBeDeclaredInThePast($wished->pointInTime());
+        if ($this->clock->now()->aheadOf($wished->slot()->start())) {
+            throw new EventCannotBeDeclaredInThePast($wished->slot());
         }
 
         $this
             ->repository
             ->get($wished->identity())
-            ->move($wished->pointInTime());
+            ->move($wished->slot());
     }
 }

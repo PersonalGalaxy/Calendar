@@ -50,13 +50,19 @@ class DeleteAgendaHandlerTest extends TestCase
                     $this->createMock(Event\Identity::class),
                     $command->identity(),
                     new Event\Name('foo'),
-                    $this->createMock(PointInTimeInterface::class)
+                    new Event\Slot(
+                        $this->createMock(PointInTimeInterface::class),
+                        $this->createMock(PointInTimeInterface::class)
+                    )
                 ),
                 $event2 = Event::add(
                     $this->createMock(Event\Identity::class),
                     $command->identity(),
                     new Event\Name('foo'),
-                    $this->createMock(PointInTimeInterface::class)
+                    new Event\Slot(
+                        $this->createMock(PointInTimeInterface::class),
+                        $this->createMock(PointInTimeInterface::class)
+                    )
                 )
             ));
         $events

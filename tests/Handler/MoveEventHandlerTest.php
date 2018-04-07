@@ -10,6 +10,7 @@ use PersonalGalaxy\Calendar\{
     Entity\Event,
     Entity\Event\Identity,
     Entity\Event\Name,
+    Entity\Event\Slot,
     Entity\Agenda\Identity as Agenda,
     Exception\EventCannotBeDeclaredInThePast,
 };
@@ -29,7 +30,10 @@ class MoveEventHandlerTest extends TestCase
         );
         $command = new MoveEvent(
             $this->createMock(Identity::class),
-            $pointInTime = $this->createMock(PointInTimeInterface::class)
+            $slot = new Slot(
+                $start = $this->createMock(PointInTimeInterface::class),
+                $this->createMock(PointInTimeInterface::class)
+            )
         );
         $clock
             ->expects($this->once())
@@ -38,7 +42,7 @@ class MoveEventHandlerTest extends TestCase
         $now
             ->expects($this->once())
             ->method('aheadOf')
-            ->with($pointInTime)
+            ->with($start)
             ->willReturn(false);
         $repository
             ->expects($this->once())
@@ -48,14 +52,17 @@ class MoveEventHandlerTest extends TestCase
                 $command->identity(),
                 $this->createMock(Agenda::class),
                 new Name('foo'),
-                $this->createMock(PointInTimeInterface::class)
+                new Slot(
+                    $this->createMock(PointInTimeInterface::class),
+                    $this->createMock(PointInTimeInterface::class)
+                )
             ));
 
         $this->assertNull($handle($command));
-        $this->assertSame($pointInTime, $event->pointInTime());
+        $this->assertSame($slot, $event->slot());
     }
 
-    public function testThrowWhenPointInTimeInThePast()
+    public function testThrowWhenSlotStartInThePast()
     {
         $handle = new MoveEventHandler(
             $repository = $this->createMock(EventRepository::class),
@@ -63,7 +70,10 @@ class MoveEventHandlerTest extends TestCase
         );
         $command = new MoveEvent(
             $this->createMock(Identity::class),
-            $pointInTime = $this->createMock(PointInTimeInterface::class)
+            $slot = new Slot(
+                $start = $this->createMock(PointInTimeInterface::class),
+                $this->createMock(PointInTimeInterface::class)
+            )
         );
         $clock
             ->expects($this->once())
@@ -72,7 +82,7 @@ class MoveEventHandlerTest extends TestCase
         $now
             ->expects($this->once())
             ->method('aheadOf')
-            ->with($pointInTime)
+            ->with($start)
             ->willReturn(true);
         $repository
             ->expects($this->never())
@@ -83,7 +93,7 @@ class MoveEventHandlerTest extends TestCase
 
             $this->fail('it should throw');
         } catch (EventCannotBeDeclaredInThePast $e) {
-            $this->assertSame($pointInTime, $e->pointInTime());
+            $this->assertSame($slot, $e->slot());
         }
     }
 }

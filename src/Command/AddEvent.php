@@ -6,27 +6,27 @@ namespace PersonalGalaxy\Calendar\Command;
 use PersonalGalaxy\Calendar\Entity\{
     Event\Identity,
     Event\Name,
+    Event\Slot,
     Agenda\Identity as Agenda,
 };
-use Innmind\TimeContinuum\PointInTimeInterface;
 
 final class AddEvent
 {
     private $identity;
     private $agenda;
     private $name;
-    private $pointInTime;
+    private $slot;
 
     public function __construct(
         Identity $identity,
         Agenda $agenda,
         Name $name,
-        PointInTimeInterface $pointInTime
+        Slot $slot
     ) {
         $this->identity = $identity;
         $this->agenda = $agenda;
         $this->name = $name;
-        $this->pointInTime = $pointInTime;
+        $this->slot = $slot;
     }
 
     public function identity(): Identity
@@ -44,8 +44,8 @@ final class AddEvent
         return $this->name;
     }
 
-    public function pointInTime(): PointInTimeInterface
+    public function slot(): Slot
     {
-        return $this->pointInTime;
+        return $this->slot;
     }
 }

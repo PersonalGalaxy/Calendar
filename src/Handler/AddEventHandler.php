@@ -31,8 +31,8 @@ final class AddEventHandler
 
     public function __invoke(AddEvent $wished): void
     {
-        if ($this->clock->now()->aheadOf($wished->pointInTime())) {
-            throw new EventCannotBeDeclaredInThePast($wished->pointInTime());
+        if ($this->clock->now()->aheadOf($wished->slot()->start())) {
+            throw new EventCannotBeDeclaredInThePast($wished->slot());
         }
 
         if (!$this->agendas->has($wished->agenda())) {
@@ -44,7 +44,7 @@ final class AddEventHandler
                 $wished->identity(),
                 $wished->agenda(),
                 $wished->name(),
-                $wished->pointInTime()
+                $wished->slot()
             )
         );
     }
