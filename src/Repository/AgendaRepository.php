@@ -13,7 +13,7 @@ use Innmind\Specification\SpecificationInterface;
 interface AgendaRepository
 {
     /**
-     * @throws FileNotFound
+     * @throws AgendaNotFound
      */
     public function get(Identity $identity): Agenda;
     public function add(Agenda $agenda): self;
