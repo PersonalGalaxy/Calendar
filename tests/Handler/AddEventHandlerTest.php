@@ -15,8 +15,12 @@ use PersonalGalaxy\Calendar\{
     Entity\Agenda\Identity as Agenda,
     Event\EventWasAdded,
     Exception\AgendaNotFound,
+    Exception\EventCannotBeDeclaredInThePast,
 };
-use Innmind\TimeContinuum\PointInTimeInterface;
+use Innmind\TimeContinuum\{
+    TimeContinuumInterface,
+    PointInTimeInterface,
+};
 use PHPUnit\Framework\TestCase;
 
 class AddEventHandlerTest extends TestCase
@@ -25,14 +29,24 @@ class AddEventHandlerTest extends TestCase
     {
         $handle = new AddEventHandler(
             $events = $this->createMock(EventRepository::class),
-            $agendas = $this->createMock(AgendaRepository::class)
+            $agendas = $this->createMock(AgendaRepository::class),
+            $clock = $this->createMock(TimeContinuumInterface::class)
         );
         $command = new AddEvent(
             $this->createMock(Identity::class),
             $this->createMock(Agenda::class),
             new Name('foo'),
-            $this->createMock(PointInTimeInterface::class)
+            $pointInTime = $this->createMock(PointInTimeInterface::class)
         );
+        $clock
+            ->expects($this->once())
+            ->method('now')
+            ->willReturn($now = $this->createMock(PointInTimeInterface::class));
+        $now
+            ->expects($this->once())
+            ->method('aheadOf')
+            ->with($pointInTime)
+            ->willReturn(false);
         $agendas
             ->expects($this->once())
             ->method('has')
@@ -56,14 +70,24 @@ class AddEventHandlerTest extends TestCase
     {
         $handle = new AddEventHandler(
             $events = $this->createMock(EventRepository::class),
-            $agendas = $this->createMock(AgendaRepository::class)
+            $agendas = $this->createMock(AgendaRepository::class),
+            $clock = $this->createMock(TimeContinuumInterface::class)
         );
         $command = new AddEvent(
             $this->createMock(Identity::class),
             $this->createMock(Agenda::class),
             new Name('foo'),
-            $this->createMock(PointInTimeInterface::class)
+            $pointInTime = $this->createMock(PointInTimeInterface::class)
         );
+        $clock
+            ->expects($this->once())
+            ->method('now')
+            ->willReturn($now = $this->createMock(PointInTimeInterface::class));
+        $now
+            ->expects($this->once())
+            ->method('aheadOf')
+            ->with($pointInTime)
+            ->willReturn(false);
         $agendas
             ->expects($this->once())
             ->method('has')
@@ -79,6 +103,44 @@ class AddEventHandlerTest extends TestCase
             $this->fail('it should throw');
         } catch (AgendaNotFound $e) {
             $this->assertSame($command->agenda(), $e->identity());
+        }
+    }
+
+    public function testThrowWhenEventInThePast()
+    {
+        $handle = new AddEventHandler(
+            $events = $this->createMock(EventRepository::class),
+            $agendas = $this->createMock(AgendaRepository::class),
+            $clock = $this->createMock(TimeContinuumInterface::class)
+        );
+        $command = new AddEvent(
+            $this->createMock(Identity::class),
+            $this->createMock(Agenda::class),
+            new Name('foo'),
+            $pointInTime = $this->createMock(PointInTimeInterface::class)
+        );
+        $clock
+            ->expects($this->once())
+            ->method('now')
+            ->willReturn($now = $this->createMock(PointInTimeInterface::class));
+        $now
+            ->expects($this->once())
+            ->method('aheadOf')
+            ->with($pointInTime)
+            ->willReturn(true);
+        $agendas
+            ->expects($this->never())
+            ->method('has');
+        $events
+            ->expects($this->never())
+            ->method('add');
+
+        try {
+            $handle($command);
+
+            $this->fail('it should throw');
+        } catch (EventCannotBeDeclaredInThePast $e) {
+            $this->assertSame($pointInTime, $e->pointInTime());
         }
     }
 }
